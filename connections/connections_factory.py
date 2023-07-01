@@ -1,4 +1,5 @@
-from connections.connections_exceptions.connection import UnknownConnectionType
+from connections.exceptions.connection import UnknownConnectionType
+
 
 class ConnectionsFactory:
     """
@@ -43,4 +44,4 @@ class ConnectionsFactory:
         if not creator:
             raise UnknownConnectionType(f"Connection type {connection_type} is unknown.")
 
-        return creator.from_config(config)
+        return creator.from_dict(config)

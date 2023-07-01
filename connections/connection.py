@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from enum import Enum
+from functools import cached_property
 
-from connections.connections_exceptions.connection import MissingConfigurationKey
+from connections.exceptions.connection import MissingConfigurationKey
 
 
 class Connection(ABC):
@@ -29,19 +31,28 @@ class Connection(ABC):
     The class also includes __enter__ and __exit__ methods to allow its instances to be used with Python's with statement.
     """
 
+    class ConfigKeys(Enum):
+        """
+        This abstract class represents the configuration keys for a Connection.
+        Child classes should implement the keys method to return a list of required keys.
+        """
+
+        @abstractmethod
+        def required_keys(self):
+            pass
+
     def __init__(self, name, host, port, username, password, ssl_keyfile_path=None, ssl_certfile_path=None,
-                 ssl_ca_certs=None, **addit_kwargs):
+                 ssl_ca_certs=None):
         self._name = name
         self._host = host
         self._port = port
         self._username = username
         self._password = password
+        self._ssl = all([ssl_keyfile_path, ssl_certfile_path, ssl_ca_certs])
         self._ssl_keyfile_path = ssl_keyfile_path
         self._ssl_certfile_path = ssl_certfile_path
         self._ssl_ca_certs = ssl_ca_certs
         self._connection_engine = None
-        self._addit_kwargs = addit_kwargs
-
 
     @property
     def name(self):
@@ -54,12 +65,12 @@ class Connection(ABC):
         return self._connection_engine
 
     @classmethod
-    def from_config(cls, config):
+    def from_dict(cls, conf_dict):
         """
         Create an instance of the connection from a configuration dictionary.
 
         Args:
-        - config: A dictionary containing the configuration parameters.
+        - conf_dict: A dictionary containing the configuration parameters.
 
         Returns:
         - An instance of the connection.
@@ -70,18 +81,18 @@ class Connection(ABC):
         pass
 
     @classmethod
-    def validate_config_keys(cls, config, required_keys):
+    def validate_dict_keys(cls, conf_dict, required_keys):
         """
         Validate the presence of required keys in the configuration dictionary.
 
         Args:
-        - config: A dictionary containing the configuration parameters.
+        - conf_dict: A dictionary containing the configuration parameters.
         - required_keys: A list of required keys.
 
         Raises:
         - MissingConfigurationKey: If any required keys are missing.
         """
-        missing_keys = [key for key in required_keys if key not in config]
+        missing_keys = [key for key in required_keys if key not in conf_dict]
         if missing_keys:
             raise MissingConfigurationKey(f"Missing required keys in the configuration: {missing_keys}")
 
@@ -106,6 +117,7 @@ class Connection(ABC):
         pass
 
     @abstractmethod
+    @cached_property
     def create_connection_string(self):
         """
         Create a connection string specific to the type of connection.

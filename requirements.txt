@@ -1,3 +1,4 @@
 PyYAML
 sqlalchemy
 redis
+pymongo

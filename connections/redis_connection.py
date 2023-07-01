@@ -18,14 +18,29 @@ class RedisConnection(Connection):
     - create_connection_string: Returns the connection string for connecting to the Redis database.
     """
 
+    class RedisConfigKeys(Connection.ConfigKeys):
+        NAME = 'name'
+        HOST = 'host'
+        PORT = 'port'
+        DATABASE_INDEX = 'database_index'
+        PASSWORD = 'password'
+        SSL = 'ssl'
+        SSL_KEY = 'key'
+        SSL_CERT = 'cert'
+        SSL_CA = 'ca'
+
+        @classmethod
+        def required_keys(cls):
+            return [member.value for member in cls if
+                    member.value not in [cls.SSL.value, cls.SSL_KEY.value, cls.SSL_CERT.value, cls.SSL_CA.value]]
+
     def __init__(self, name, host, port, database_index, password, ssl_keyfile_path=None, ssl_certfile_path=None,
-                 ssl_ca_certs=None, **addit_kwargs):
-        super().__init__(name, host, port, None, password, ssl_keyfile_path, ssl_certfile_path, ssl_ca_certs,
-                         **addit_kwargs)
+                 ssl_ca_certs=None):
+        super().__init__(name, host, port, None, password, ssl_keyfile_path, ssl_certfile_path, ssl_ca_certs)
         self._database_index = database_index
 
     @classmethod
-    def from_config(cls, config):
+    def from_dict(cls, config):
         """
         Create an instance of RedisConnection from a configuration dictionary.
 
@@ -38,16 +53,26 @@ class RedisConnection(Connection):
         Raises:
         - MissingConfigurationKey: If any required configuration keys are missing.
         """
-        # Validate configuration keys
-        cls.validate_config_keys(config, ['name', 'host', 'port', 'database_index', 'password'])
 
-        # Extract the keys specific to Redis from the config
+        # Initiate config keys class
+        config_keys = cls.RedisConfigKeys.required_keys()
+
+        # Validate configuration keys
+        cls.validate_dict_keys(config, config_keys)
+
+        # Extract the keys specific to MySQL from the config
         return cls(
-            config['name'], config['host'], config['port'], config['database_index'], config['password'],
-            config.get('ssl', {}).get('key'), config.get('ssl', {}).get('cert'), config.get('ssl', {}).get('ca')
+            config[cls.RedisConfigKeys.NAME.value],
+            config[cls.RedisConfigKeys.HOST.value],
+            config[cls.RedisConfigKeys.PORT.value],
+            config[cls.RedisConfigKeys.DATABASE_INDEX.value],
+            config[cls.RedisConfigKeys.PASSWORD.value],
+            config.get(cls.RedisConfigKeys.SSL.value, {}).get(cls.RedisConfigKeys.SSL_KEY.value),
+            config.get(cls.RedisConfigKeys.SSL.value, {}).get(cls.RedisConfigKeys.SSL_CERT.value),
+            config.get(cls.RedisConfigKeys.SSL.value, {}).get(cls.RedisConfigKeys.SSL_CA.value)
         )
 
-    def connect(self):
+    def connect(self, **connection_addit_kwargs):
         """
         Open the connection to the Redis database.
         """
@@ -59,7 +84,7 @@ class RedisConnection(Connection):
                                         ssl_keyfile=self._ssl_keyfile_path,
                                         ssl_certfile=self._ssl_certfile_path,
                                         ssl_ca_certs=self._ssl_ca_certs,
-                                        **self._addit_kwargs)
+                                        **connection_addit_kwargs)
 
     def disconnect(self):
         """

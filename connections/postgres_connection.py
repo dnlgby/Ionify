@@ -4,22 +4,22 @@ from connections.connection import Connection
 from connections.sql_connection import SQLConnection
 
 
-class MySQLConnection(SQLConnection):
+class PostgreConnection(SQLConnection):
     """
-    MySQLConnection is a concrete subclass of Connection that represents a connection to a MySQL database.
+    PostgreConnection is a concrete subclass of Connection that represents a connection to a PostgreSQL database.
 
     Attributes:
     - _database: A string representing the name of the database.
 
     The following methods are implemented in this class:
-    - from_config: A class method that creates an instance of MySQLConnection from a configuration dictionary.
-    - connect: Opens the connection to the MySQL database.
-    - disconnect: Closes the connection to the MySQL database.
-    - check_health: Checks whether the connection to the MySQL database is healthy.
-    - create_connection_string: Returns the connection string for connecting to the MySQL database.
+    - from_config: A class method that creates an instance of PostgreConnection from a configuration dictionary.
+    - connect: Opens the connection to the PostgreSQL database.
+    - disconnect: Closes the connection to the PostgreSQL database.
+    - check_health: Checks whether the connection to the PostgreSQL database is healthy.
+    - create_connection_string: Returns the connection string for connecting to the PostgreSQL database.
     """
 
-    class MySQLConfigKeys(Connection.ConfigKeys):
+    class PostgreSQLConfigKeys(Connection.ConfigKeys):
         NAME = 'name'
         HOST = 'host'
         PORT = 'port'
@@ -44,49 +44,48 @@ class MySQLConnection(SQLConnection):
     @classmethod
     def from_dict(cls, config):
         """
-        Create an instance of MySQLConnection from a configuration dictionary.
+        Create an instance of PostgreConnection from a configuration dictionary.
 
         Args:
         - config: A dictionary containing the configuration parameters.
 
         Returns:
-        - An instance of MySQLConnection.
+        - An instance of PostgreConnection.
 
         Raises:
         - MissingConfigurationKey: If any required configuration keys are missing.
         """
 
         # Initiate config keys class
-        required_config_keys = cls.MySQLConfigKeys.required_keys()
+        required_config_keys = cls.PostgreSQLConfigKeys.required_keys()
 
         # Validate configuration keys
         cls.validate_dict_keys(config, required_config_keys)
 
-        # Extract the keys specific to MySQL from the config
+        # Extract the keys specific to PostgreSQL from the config
         return cls(
-            config[cls.MySQLConfigKeys.NAME.value],
-            config[cls.MySQLConfigKeys.HOST.value],
-            config[cls.MySQLConfigKeys.PORT.value],
-            config[cls.MySQLConfigKeys.DATABASE.value],
-            config[cls.MySQLConfigKeys.USERNAME.value],
-            config[cls.MySQLConfigKeys.PASSWORD.value],
-            config.get(cls.MySQLConfigKeys.SSL.value, {}).get(cls.MySQLConfigKeys.SSL.SSL_KEY.value),
-            config.get(cls.MySQLConfigKeys.SSL.value, {}).get(cls.MySQLConfigKeys.SSL.SSL_CERT.value),
-            config.get(cls.MySQLConfigKeys.SSL.value, {}).get(cls.MySQLConfigKeys.SSL.SSL_CA.value)
+            config[cls.PostgreSQLConfigKeys.NAME.value],
+            config[cls.PostgreSQLConfigKeys.HOST.value],
+            config[cls.PostgreSQLConfigKeys.PORT.value],
+            config[cls.PostgreSQLConfigKeys.DATABASE.value],
+            config[cls.PostgreSQLConfigKeys.USERNAME.value],
+            config[cls.PostgreSQLConfigKeys.PASSWORD.value],
+            config.get(cls.PostgreSQLConfigKeys.SSL.value, {}).get(cls.PostgreSQLConfigKeys.SSL.SSL_KEY.value),
+            config.get(cls.PostgreSQLConfigKeys.SSL.value, {}).get(cls.PostgreSQLConfigKeys.SSL.SSL_CERT.value),
+            config.get(cls.PostgreSQLConfigKeys.SSL.value, {}).get(cls.PostgreSQLConfigKeys.SSL.SSL_CA.value)
         )
 
     def _create_engine(self):
         """
-        Create the SQLAlchemy engine for a MySQL database connection, including SSL configuration if applicable.
+        Create the SQLAlchemy engine for a PostgreSQL database connection, including SSL configuration if applicable.
 
         SSL Configuration:
         If SSL parameters are provided (ssl_certfile_path, ssl_keyfile_path, ssl_ca_certs),
         the connection will be established using SSL encryption. The arguments for SSL configuration are:
-        - 'ssl': {
-            'cert': self._ssl_certfile_path,
-            'key': self._ssl_keyfile_path,
-            'ca': self._ssl_ca_certs,
-        }
+        - 'sslmode': 'require',
+        - 'sslrootcert': self._ssl_ca_certs,
+        - 'sslcert': self._ssl_certfile_path,
+        - 'sslkey': self._ssl_keyfile_path,
 
         If SSL parameters are not provided, no SSL encryption will be used.
 
@@ -98,22 +97,22 @@ class MySQLConnection(SQLConnection):
         """
 
         ssl_args = {}
+
         if self._ssl:
             ssl_args = {
-                'ssl': {
-                    'cert': self._ssl_certfile_path,
-                    'key': self._ssl_keyfile_path,
-                    'ca': self._ssl_ca_certs,
-                }
+                'sslmode': 'require',
+                'sslrootcert': self._ssl_ca_certs,
+                'sslcert': self._ssl_certfile_path,
+                'sslkey': self._ssl_keyfile_path,
             }
 
         self._connection_engine = create_engine(self.create_connection_string(), connect_args=ssl_args)
 
     def create_connection_string(self):
         """
-        Create the connection string for connecting to the MySQL database.
+        Create the connection string for connecting to the PostgreSQL database.
 
         Returns:
         - The connection string.
         """
-        return f"mysql+pymysql://{self._username}:{self._password}@{self._host}:{self._port}/{self._database}"
+        return f"postgresql://{self._username}:{self._password}@{self._host}:{self._port}/{self._database}"
