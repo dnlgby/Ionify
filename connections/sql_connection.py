@@ -46,9 +46,17 @@ class SQLConnection(Connection, ABC):
         """Get the SQLAlchemy declarative base model class instance."""
         return self._declarative_base_model
 
+    @property
+    def automap_base_model(self):
+        """Get the SQLAlchemy declarative automap base model class instance."""
+        return self._automap_base_model
+
     @abstractmethod
     def _create_engine(self, **connection_addit_kwargs):
         pass
+
+    def get_new_session(self):
+        return self._session_maker()
 
     def connect(self, **connection_addit_kwargs):
         """

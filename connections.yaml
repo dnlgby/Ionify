@@ -10,13 +10,13 @@ connections:
       key: /path/to/client-key.pem
       cert: /path/to/client-cert.pem
       ca: /path/to/ca.pem
-#  - name: redis_server_one
-#    type: redis
-#    host: localhost
-#    port: 6379
-#    password: my_password
-#    database_index: 1
-#    ssl:
-#      key: /path/to/client-key.pem
-#      cert: /path/to/client-cert.pem
-#      ca: /path/to/ca.pem
+  - name: redis_server_one
+    type: redis
+    host: localhost
+    port: 6379
+    password: my_password
+    database_index: 1
+    ssl:
+      key: /path/to/client-key.pem
+      cert: /path/to/client-cert.pem
+      ca: /path/to/ca.pem
