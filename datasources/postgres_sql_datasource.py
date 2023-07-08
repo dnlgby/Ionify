@@ -4,17 +4,17 @@ from sqlalchemy.sql import func
 from datasources.sql_datasource import SQLDataSource
 
 
-class MySqlDataSource(SQLDataSource):
+class PostgreSQLDataSource(SQLDataSource):
     """
-    MySqlDataSource is a concrete subclass of SQLDataSource that interfaces with a MySQL database.
+    PostgreSQLDataSource is a concrete subclass of SQLDataSource that interfaces with a PostgreSQL database.
 
     This class is designed to work with SQLAlchemy ORM, which allows high-level and Pythonic manipulation of SQL databases.
 
     Methods:
-    - insert: Inserts a new record into a table in the MySQL database.
-    - update: Updates an existing record in a table in the MySQL database.
-    - remove: Deletes an existing record from a table in the MySQL database.
-    - query: Executes a SQL query against the MySQL database.
+    - insert: Inserts a new record into a table in the PostgreSQL database.
+    - update: Updates an existing record in a table in the PostgreSQL database.
+    - remove: Deletes an existing record from a table in the PostgreSQL database.
+    - query: Executes a SQL query against the PostgreSQL database.
     """
 
     def __init__(self, connection):

@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from connections.connection import Connection
 
@@ -73,58 +73,3 @@ class DataSource(ABC):
         - True if the connection is healthy, False otherwise.
         """
         return self._connection.check_health()
-
-    @abstractmethod
-    def insert(self, data_entity_key: str, data: dict):
-        """
-        Insert data into the database.
-
-        Args:
-        - data_entity_key: A string representing the key of the data entity.
-        - data: A dictionary containing the data to insert.
-
-        This is an abstract method and must be implemented in subclasses.
-        """
-        pass
-
-    @abstractmethod
-    def update(self, data_entity_key: str, data_entity_id, data: dict):
-        """
-        Update data in the database.
-
-        Args:
-        - data_entity_key: A string representing the key of the data entity.
-        - data_entity_id: The id of the data entity to update.
-        - data: A dictionary containing the new data.
-
-        This is an abstract method and must be implemented in subclasses.
-        """
-        pass
-
-    @abstractmethod
-    def remove(self, data_entity_key: str, data_entity_id):
-        """
-        Remove data from the database.
-
-        Args:
-        - data_entity_key: A string representing the key of the data entity.
-        - data_entity_id: The id of the data entity to remove.
-
-        This is an abstract method and must be implemented in subclasses.
-        """
-        pass
-
-    @abstractmethod
-    def query(self, query_string: str):
-        """
-        Execute a query against the database and return the result.
-
-        Args:
-        - query_string: A string containing the SQL query to execute.
-
-        Returns:
-        - The result of the query.
-
-        This is an abstract method and must be implemented in subclasses.
-        """
-        pass

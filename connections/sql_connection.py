@@ -56,6 +56,7 @@ class SQLConnection(Connection, ABC):
         pass
 
     def get_new_session(self):
+        """Get new SQLAlchemy session"""
         return self._session_maker()
 
     def connect(self, **connection_addit_kwargs):
