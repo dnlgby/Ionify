@@ -73,3 +73,16 @@ class DataSource(ABC):
         - True if the connection is healthy, False otherwise.
         """
         return self._connection.check_health()
+
+    def __enter__(self):
+        """Open the datasource connection when entering a with statement."""
+        self.connect()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Close the datasource connection when exiting a with statement."""
+        self.disconnect()
+
+    def __del__(self):
+        """Close the datasource connection when the instance is deleted."""
+        self.disconnect()

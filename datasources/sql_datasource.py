@@ -50,6 +50,11 @@ class SQLDataSource(DataSource, ABC):
         """Get the SQLAlchemy declarative base model class instance."""
         return self._connection.declarative_base_model
 
+    @property
+    def automap_base_model(self):
+        """Get the SQLAlchemy declarative automap base model class instance."""
+        return self._connection._automap_base_model
+
     @abstractmethod
     def insert(self, data_entity_key: str, data: dict):
         """
@@ -112,18 +117,6 @@ class SQLDataSource(DataSource, ABC):
 
         Args:
         - data_entity_key: The name of the table.
-        """
-        pass
-
-    @abstractmethod
-    def find_by_field(self, data_entity_key: str, field_name: str, field_value):
-        """
-        Get records that match a specific field value.
-
-        Args:
-        - data_entity_key: The name of the table.
-        - field_name: The name of the field to filter by.
-        - field_value: The value to match.
         """
         pass
 

@@ -109,6 +109,7 @@ class MySQLConnection(SQLConnection):
 
         self._connection_engine = create_engine(self.create_connection_string(), connect_args=ssl_args)
 
+
     def create_connection_string(self):
         """
         Create the connection string for connecting to the MySQL database.

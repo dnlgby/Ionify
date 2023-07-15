@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from sqlalchemy import exc
+from sqlalchemy import exc, text
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -52,18 +52,18 @@ class SQLConnection(Connection, ABC):
         return self._automap_base_model
 
     @abstractmethod
-    def _create_engine(self, **connection_addit_kwargs):
+    def _create_engine(self):
         pass
 
     def get_new_session(self):
         """Get new SQLAlchemy session"""
         return self._session_maker()
 
-    def connect(self, **connection_addit_kwargs):
+    def connect(self):
         """
         Open the connection to the SQL database.
         """
-        self._connection_engine = self._create_engine(**connection_addit_kwargs)
+        self._create_engine()
         self._session_maker = sessionmaker(bind=self._connection_engine)
 
         # Auto map base - Initiate models for the existing tables in the database.
@@ -113,7 +113,9 @@ class SQLConnection(Connection, ABC):
         - True if the connection is healthy, False otherwise.
         """
         try:
-            self._connection_engine.execute("SELECT 1")
+            session = self.get_new_session()  # Using the get_new_session method in SQLConnection
+            session.execute(text("SELECT 1"))
+            session.close()
             return True
         except exc.DBAPIError:
             return False
